@@ -1,7 +1,7 @@
 ---
 name: Build fail bug report
 about: Create a report to help us improve
-title: {{ env.name }}
+title: Build fail bug report
 labels: ''
 assignees: ''
 
