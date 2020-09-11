@@ -29,5 +29,11 @@ jobs:
           # Deprecated. Use node-version instead. Will not be supported after October 1, 2019
           #version: # optional
 
+      - run: npm install
 
+      - run: npm run build --if-present
+
+      - run: npm test
+        env:
+          CI: true
 
