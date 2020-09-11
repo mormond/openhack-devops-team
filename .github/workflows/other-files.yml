@@ -1,4 +1,4 @@
-name: ci
+name: All Other Files Workflow
 
 # This is a real hack but we need a "passing" workflow to
 # allow the status checks on the PR to work
