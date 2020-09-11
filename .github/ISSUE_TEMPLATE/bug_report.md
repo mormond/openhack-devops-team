@@ -1,7 +1,7 @@
 ---
-name: {{ env.name }}
+name: Build fail bug report
 about: Create a report to help us improve
-title: mnvbmnvb
+title: {{ env.name }}
 labels: ''
 assignees: ''
 
