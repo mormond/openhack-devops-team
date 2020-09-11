@@ -18,4 +18,5 @@ jobs:
       run:
         working-directory: .
     steps:    
-      - uses: actions/checkout@v2
+      - name: Cleanup
+        run: echo "Pass as no checks required."
