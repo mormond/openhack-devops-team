@@ -6,10 +6,10 @@ name: ci
 on:
   push:
     branches:     [ master ]
-    paths-ignore: [ apis/poi/** ]
+    paths-ignore: [ apis/poi/**, apis/userprofile/** ]
   pull_request:
     branches:     [ master ]
-    paths-ignore: [ apis/poi/** ]
+    paths-ignore: [ apis/poi/**, apis/userprofile/** ]
 
 jobs:     
   build:   
