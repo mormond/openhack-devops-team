@@ -1,4 +1,4 @@
-name: .NET Core
+name: POI Workflow
 
 on:
   push:
@@ -41,7 +41,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           name: Build failed
-          title: The build failed for ${{ jobs.build.defaults.run.working-directory }}
+          title: The build failed for ${{ github.workflow }}
       
       - name: Log issue number
         if: ${{ !success() }}
