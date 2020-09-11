@@ -1,5 +1,5 @@
 ---
-name: Bug report
+name: {{ env.name }}
 about: Create a report to help us improve
 title: mnvbmnvb
 labels: ''
@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 ---
-title: {{ worflow }}
+title: {{ workflow }}
 ---
 
 **Describe the bug**
