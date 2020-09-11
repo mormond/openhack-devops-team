@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 ---
-title: Different file
+title: {{ worflow }}
 ---
 
 **Describe the bug**
