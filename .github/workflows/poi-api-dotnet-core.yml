@@ -31,3 +31,15 @@ jobs:
       
       - name: Test
         run: dotnet test --no-restore --verbosity normal
+        
+      - name: Create issue when failed
+        id: create-issue
+        if: ${{ !success() }}
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: jjj
+        if: ${{ !success() }}
+        run: 'echo Created issue number ${{ steps.create-issue.outputs.number }}'
+
