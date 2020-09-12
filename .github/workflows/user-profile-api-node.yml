@@ -37,6 +37,18 @@ jobs:
       - run: npm run build --if-present
 
       - run: npm test
-        env:
-          CI: true
 
+      - name: Create issue when failed
+        id: create-issue
+        if: ${{ !success() }}
+        uses: JasonEtco/create-an-issue@v2
+        with:
+          filename: .github/ISSUE_TEMPLATE/bug_report.md        
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: Build failed
+          title: The build failed for ${{ github.workflow }}
+      
+      - name: Log issue number
+        if: ${{ !success() }}
+        run: 'echo Created issue number ${{ steps.create-issue.outputs.number }}'
