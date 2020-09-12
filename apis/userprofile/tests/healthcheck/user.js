@@ -69,7 +69,7 @@ Test('/healthcheck/user', function (t) {
                         response = res.text;
                     }
                     t.ok(validate(response), 'Valid response');
-                    t.error(validate.errors, 'No validation errors');
+                    t.ok(validate.errors, 'No validation errors');
                     t.end();
                 });
             });
