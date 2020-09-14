@@ -66,9 +66,9 @@ jobs:
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          context: apis/poi/web
-          file: apis/poi/web/Dockerfile
+#          context: apis/poi/web
+#          file: apis/poi/web/Dockerfile
           registry: docker.pkg.github.com
-          repository: mormond/devopsoh/api-poi
+#          repository: mormond/devopsoh/api-poi
           tags: ${{ github.run.number }}
           
