@@ -67,7 +67,6 @@ jobs:
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          context: apis/poi/web
           path: apis/poi/web
           registry: docker.pkg.github.com
           repository: mormond/openhack-devops-team/api-poi
