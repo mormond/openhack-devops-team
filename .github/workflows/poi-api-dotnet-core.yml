@@ -59,8 +59,8 @@ jobs:
         working-directory: apis/poi/web   
            
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v2
+#      - name: Check out the repo
+#        uses: actions/checkout@v2
 
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
@@ -71,3 +71,4 @@ jobs:
           registry: docker.pkg.github.com
           repository: mormond/openhack-devops-team/api-poi
           tags: ${{ github.run.number }}
+          
