@@ -54,6 +54,10 @@ jobs:
     needs: [build]
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apis/poi/web   
+           
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
