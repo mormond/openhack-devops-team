@@ -32,9 +32,13 @@ jobs:
       - name: Test
         run: dotnet test --no-restore --verbosity normal
         
+  log_issue:
+    if: ${{ !success() }}
+    runs-on: ubuntu-latest
+    
+    steps:
       - name: Create issue when failed
         id: create-issue
-        if: ${{ !success() }}
         uses: JasonEtco/create-an-issue@v2
         with:
           filename: .github/ISSUE_TEMPLATE/bug_report.md        
@@ -42,8 +46,27 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           name: Build failed
           title: The build failed for ${{ github.workflow }}
-      
+             
       - name: Log issue number
-        if: ${{ !success() }}
         run: 'echo Created issue number ${{ steps.create-issue.outputs.number }}'
 
+  push_to_registry:
+    needs: [build]
+    name: Push Docker image to GitHub Packages
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apis/poi/web   
+           
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: mormond/devopsoh/api-poi
+          tags: ${{ github.run.number }}
+          
