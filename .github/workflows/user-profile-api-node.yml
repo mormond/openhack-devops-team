@@ -38,9 +38,13 @@ jobs:
 
       - run: npm test
 
+  log_issue:
+    if: ${{ !success() }}
+    runs-on: ubuntu-latest
+    
+    steps:
       - name: Create issue when failed
         id: create-issue
-        if: ${{ !success() }}
         uses: JasonEtco/create-an-issue@v2
         with:
           filename: .github/ISSUE_TEMPLATE/bug_report.md        
@@ -48,7 +52,27 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           name: Build failed
           title: The build failed for ${{ github.workflow }}
-      
+             
       - name: Log issue number
-        if: ${{ !success() }}
         run: 'echo Created issue number ${{ steps.create-issue.outputs.number }}'
+
+  push_to_registry:
+    needs: [build]
+    name: Push Docker image to GitHub Packages
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apis/userprofile 
+           
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Login to package registry
+        run: docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Build docker image
+        run: docker build -t docker.pkg.github.com/${{ github.repository }}/api-userprofile:${{ github.run_number }} .
+
+      - name: Push to registry
+        run: docker push docker.pkg.github.com/${{ github.repository }}/api-userprofile:${{ github.run_number }}
