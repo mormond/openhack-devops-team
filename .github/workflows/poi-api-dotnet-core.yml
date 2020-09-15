@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest    
 
     steps:
-    - run: az webapp config container set --docker-registry-server-url docker.pkg.github.com --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }}
+    - run: az webapp config container set --docker-registry-server-url docker.pkg.github.com --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }} --resource-group openhackpf79scm7rg --name openhackpf79scm7poi
 
     - uses: azure/webapps-deploy@v2
       with:
