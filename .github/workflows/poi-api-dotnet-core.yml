@@ -59,16 +59,15 @@ jobs:
         working-directory: apis/poi/web   
            
     steps:
-#      - name: Check out the repo
-#        uses: actions/checkout@v2
+      - name: Check out the repo
+        uses: actions/checkout@v2
 
-      - name: Push to GitHub Packages
-        uses: docker/build-push-action@v1
-        with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          path: apis/poi/web
-          registry: docker.pkg.github.com
-          repository: mormond/openhack-devops-team/api-poi
-          tags: ${{ github.run.number }}
-          
+      - name: Login to package registry
+        run: docker login docker.pkg.github.com -u ${{ GITHUB_ACTOR }} -p {{ secrets.GITHUB_TOKEN }}
+        
+      - name: Build docker image
+        run: docker build -t docker.pkg.github.com/${{ GITHUB_REPOSITORY }}/api-poi:${{ GITHUB_RUN_NUMBER	}}
+
+      - name: Push to registry
+        run: docker push docker.pkg.github.com/${{ GITHUB_REPOSITORY }}/api-poi:${{ GITHUB_RUN_NUMBER	}}
+
