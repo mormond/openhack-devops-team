@@ -66,8 +66,8 @@ jobs:
         run: docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
         
       - name: Build docker image
-        run: docker build -t docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number	}}
+        run: docker build -t docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number }} .
 
       - name: Push to registry
-        run: docker push docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number	}}
+        run: docker push docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number }}
 
