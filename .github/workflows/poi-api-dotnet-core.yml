@@ -71,3 +71,12 @@ jobs:
       - name: Push to registry
         run: docker push docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number }}
 
+  deploy:
+    needs: [push_to_registry]
+
+    steps:        
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'openhackpf79scm7poi'
+        publish-profile: ${{ secrets.poiWebAppPublishProfile }}
+        images: 'docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number }}'
