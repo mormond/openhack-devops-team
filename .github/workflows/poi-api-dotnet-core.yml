@@ -1,16 +1,15 @@
 name: POI API Workflow
 
 env:
+  wd_path: apis/poi
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
   webapp_name: openhackpf79scm7poi
 
 on:
   push:
-    branches:
-     - master
-    paths:
-     - apis/poi/**
+    branches: [ master ]
+    paths: [ $env.wd_path/** ]
   pull_request:
     branches:
      - master
