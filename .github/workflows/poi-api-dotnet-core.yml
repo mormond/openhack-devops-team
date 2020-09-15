@@ -60,7 +60,7 @@ jobs:
         run: 'echo Created issue number ${{ steps.create-issue.outputs.number }}'
 
   push_to_registry:
-    if: github.ref == 'refs/heads/master'
+    if: ${{ github.ref }} == 'refs/heads/master'
     needs: [build]
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
@@ -92,7 +92,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
-      - run: az webapp config container set --docker-registry-server-url https://$repo_url --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }} --resource-group ${{ env.resource_group }} --name ${{ env.webapp_name }}
+      - run: az webapp config container set --docker-registry-server-url https://${{ env.repo_url }} --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }} --resource-group ${{ env.resource_group }} --name ${{ env.webapp_name }}
 
       - uses: azure/webapps-deploy@v2
         with:
