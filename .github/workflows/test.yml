@@ -26,4 +26,4 @@ jobs:
         with:
           app-name: ${{ env.webapp_name }}
           publish-profile: ${{ secrets.poiWebAppPublishProfile }}
-          images: '${{ env.repo_url }}/${{ github.repository }}/api-poi:${{ github.run_number }}'
+          images: '${{ env.repo_url }}/${{ github.repository }}/api-poi:49'
