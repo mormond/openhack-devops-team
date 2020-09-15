@@ -1,7 +1,6 @@
 name: POI API Workflow
 
 env:
-  wd_path: apis/poi
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
   webapp_name: openhackpf79scm7poi
@@ -23,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: $wd_path 
+        working-directory: apis/poi 
 
     steps:    
       - uses: actions/checkout@v2
@@ -67,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: $wd_path/web   
+        working-directory: apis/poi/web   
            
     steps:
       - name: Check out the repo
