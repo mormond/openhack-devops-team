@@ -91,7 +91,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
-      - run: az webapp config container set --docker-registry-server-url https://${{ env.repo_url }} --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.PACKAGES_PAT }} --resource-group ${{ env.resource_group }} --name ${{ env.webapp_name }}
+      - run: az webapp config container set --docker-registry-server-url https://${{ env.repo_url }} --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.PACKAGESPAT }} --resource-group ${{ env.resource_group }} --name ${{ env.webapp_name }}
 
       - uses: azure/webapps-deploy@v2
         with:
