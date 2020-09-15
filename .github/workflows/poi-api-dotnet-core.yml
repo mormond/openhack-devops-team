@@ -77,10 +77,15 @@ jobs:
     runs-on: ubuntu-latest    
 
     steps:
-    - run: az webapp config container set --docker-registry-server-url docker.pkg.github.com --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }} --resource-group openhackpf79scm7rg --name openhackpf79scm7poi
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
-    - uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'openhackpf79scm7poi'
-        publish-profile: ${{ secrets.poiWebAppPublishProfile }}
-        images: 'docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number }}'
+      - run: az webapp config container set --docker-registry-server-url docker.pkg.github.com --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }} --resource-group openhackpf79scm7rg --name openhackpf79scm7poi
+
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'openhackpf79scm7poi'
+          publish-profile: ${{ secrets.poiWebAppPublishProfile }}
+          images: 'docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number }}'
