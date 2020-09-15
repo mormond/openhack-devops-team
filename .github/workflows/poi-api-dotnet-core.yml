@@ -1,19 +1,25 @@
 name: POI API Workflow
 
+env:
+  wd_path: apis/poi
+  repo_url: docker.pkg.github.com
+  resource_group: openhackpf79scm7rg
+  webapp_name: openhackpf79scm7poi
+
 on:
   push:
     branches: [ master ]
-    paths:    [ apis/poi/** ]
+    paths:    [ $wd_path/** ]
   pull_request:
     branches: [ master ]
-    paths:    [ apis/poi/** ]
+    paths:    [ $wd_path/** ]
 
 jobs:     
   build:   
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apis/poi  
+        working-directory: $wd_path 
 
     steps:    
       - uses: actions/checkout@v2
@@ -51,25 +57,26 @@ jobs:
         run: 'echo Created issue number ${{ steps.create-issue.outputs.number }}'
 
   push_to_registry:
+    if: github.ref == 'refs/heads/master'
     needs: [build]
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apis/poi/web   
+        working-directory: $wd_path/web   
            
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
 
       - name: Login to package registry
-        run: docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+        run: docker login $repo_url -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
         
       - name: Build docker image
-        run: docker build -t docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number }} .
+        run: docker build -t $repo_url/${{ github.repository }}/api-poi:${{ github.run_number }} .
 
       - name: Push to registry
-        run: docker push docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number }}
+        run: docker push $repo_url/${{ github.repository }}/api-poi:${{ github.run_number }}
 
   deploy:
     needs: [push_to_registry]
@@ -82,10 +89,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
-      - run: az webapp config container set --docker-registry-server-url docker.pkg.github.com --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }} --resource-group openhackpf79scm7rg --name openhackpf79scm7poi
+      - run: az webapp config container set --docker-registry-server-url https://$repo_url --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }} --resource-group $resource_group --name $webapp_name
 
       - uses: azure/webapps-deploy@v2
         with:
-          app-name: 'openhackpf79scm7poi'
+          app-name: $webapp_name
           publish-profile: ${{ secrets.poiWebAppPublishProfile }}
-          images: 'docker.pkg.github.com/${{ github.repository }}/api-poi:${{ github.run_number }}'
+          images: '$repo_url/${{ github.repository }}/api-poi:${{ github.run_number }}'
