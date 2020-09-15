@@ -77,8 +77,8 @@ jobs:
     runs-on: ubuntu-latest    
 
     steps:
-    - run: docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-              
+    - run: az webapp config container set --docker-registry-server-url docker.pkg.github.com --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }}
+
     - uses: azure/webapps-deploy@v2
       with:
         app-name: 'openhackpf79scm7poi'
