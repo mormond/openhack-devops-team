@@ -76,7 +76,9 @@ jobs:
     name: Deploy to App Service
     runs-on: ubuntu-latest    
 
-    steps:        
+    steps:
+    - run: docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+              
     - uses: azure/webapps-deploy@v2
       with:
         app-name: 'openhackpf79scm7poi'
