@@ -8,11 +8,15 @@ env:
 
 on:
   push:
-    branches: master
-    paths:    $wd_path/**
+    branches:
+     - master
+    paths:
+     - $wd_path/**
   pull_request:
-    branches: master
-    paths:    $wd_path/**
+    branches:
+     - master
+    paths:
+     - $wd_path/**
 
 jobs:     
   build:   
