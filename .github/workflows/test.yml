@@ -1,0 +1,29 @@
+name: Test Publish Workflow
+
+env:
+  repo_url: docker.pkg.github.com
+  resource_group: openhackpf79scm7rg
+  webapp_name: openhackpf79scm7poi
+
+on:
+  workflow_dispatch:
+
+jobs:     
+
+  deploy:
+    name: Deploy to App Service
+    runs-on: ubuntu-latest    
+
+    steps:
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
+
+      - run: az webapp config container set --docker-registry-server-url https://${{ env.repo_url }} --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }} --resource-group ${{ env.resource_group }} --name ${{ env.webapp_name }}
+
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.webapp_name }}
+          publish-profile: ${{ secrets.poiWebAppPublishProfile }}
+          images: '${{ env.repo_url }}/${{ github.repository }}/api-poi:${{ github.run_number }}'
