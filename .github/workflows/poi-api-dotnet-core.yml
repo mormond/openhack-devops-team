@@ -73,6 +73,8 @@ jobs:
 
   deploy:
     needs: [push_to_registry]
+    name: Deploy to App Service
+    runs-on: ubuntu-latest    
 
     steps:        
     - uses: azure/webapps-deploy@v2
