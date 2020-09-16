@@ -10,10 +10,10 @@ env:
 on:
   push:
     branches: [ master ]
-    paths: [ ${{ env.wd_path }}/** ]
+    paths: [ apis/poi/** ]
   pull_request:
     branches: [ master ]
-    paths: [ ${{ env.wd_path }}/** ]
+    paths: [ apis/poi/** ]
 
 jobs:     
   build:   
