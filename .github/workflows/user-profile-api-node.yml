@@ -5,6 +5,7 @@ env:
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
   webapp_name: openhackpf79scm7userprofile
+  api_name: api-userprofile
 
 on:
   push:
