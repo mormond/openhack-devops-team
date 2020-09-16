@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: $env.wd_path
+        working-directory: ${{ env.wd_path }}
 
     steps:    
       - uses: actions/checkout@v2
