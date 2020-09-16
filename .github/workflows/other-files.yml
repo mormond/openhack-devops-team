@@ -12,7 +12,8 @@ on:
     paths-ignore: [ apis/poi/**, apis/userprofile/** ]
 
 jobs:     
-  build:   
+  build:
+    name: Build and test   
     runs-on: ubuntu-latest
     defaults:
       run:
