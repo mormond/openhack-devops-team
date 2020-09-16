@@ -20,6 +20,7 @@ env:
 jobs:     
   build:   
     runs-on: ubuntu-latest
+    name: Build and test
     defaults:
       run:
         working-directory: ${{ env.wd_path }}    
@@ -83,7 +84,7 @@ jobs:
 
   deploy:
     needs: [push_to_registry]
-    name: Deploy to App Service
+    name: Deploy to staging
     runs-on: ubuntu-latest    
 
     steps:
@@ -93,22 +94,23 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
       - run: |
-          az webapp config container set 
-            --docker-registry-server-url https://${{ env.repo_url }} 
-            --docker-registry-server-user ${{ github.actor }} 
-            --docker-registry-server-password ${{ secrets.PACKAGESPAT }} 
-            --resource-group ${{ env.resource_group }} 
-            --name ${{ env.webapp_name }}
+          az webapp config container set |
+            --docker-registry-server-url https://${{ env.repo_url }} |
+            --docker-registry-server-user ${{ github.actor }} |
+            --docker-registry-server-password ${{ secrets.PACKAGESPAT }} |
+            --resource-group ${{ env.resource_group }} |
+            --name ${{ env.staging_name }}
 
       - uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.webapp_name }}
+          app-name: ${{ env.staging_name }}
           publish-profile: ${{ secrets.POIWEBAPPPUBLISHPROFILE }}
           images: '${{ env.repo_url }}/${{ github.repository }}/${{ env.api_name }}:${{ github.run_number }}'
 
   check:
     needs: [deploy]
-    runs-on: ubuntu-latest   
+    runs-on: ubuntu-latest  
+    name: Run healthcheck on staging 
     timeout-minutes: 3
 
     steps:
