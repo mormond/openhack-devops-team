@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: $env.wd_path
+        working-directory: ${{ env.wd_path }}
         
     steps:
       - uses: actions/checkout@v2
@@ -67,10 +67,6 @@ jobs:
     needs: [build]
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: $env.wd_path
-
            
     steps:
       - name: Check out the repo
@@ -80,10 +76,10 @@ jobs:
         run: docker login ${{ env.repo_url }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
         
       - name: Build docker image
-        run: docker build -t ${{ env.repo_url }}/${{ github.repository }}/$env.api_name:${{ github.run_number }} .
+        run: docker build -t ${{ env.repo_url }}/${{ github.repository }}/${{ env.api_name }}:${{ github.run_number }} .
 
       - name: Push to registry
-        run: docker push ${{ env.repo_url }}/${{ github.repository }}/$env.api_name:${{ github.run_number }}
+        run: docker push ${{ env.repo_url }}/${{ github.repository }}/${{ env.api_name }}:${{ github.run_number }}
 
   deploy:
     needs: [push_to_registry]
@@ -102,4 +98,4 @@ jobs:
         with:
           app-name: ${{ env.webapp_name }}
           publish-profile: ${{ secrets.USERPROFILEWEBAPPPUBLISHPROFILE }}
-          images: '${{ env.repo_url }}/${{ github.repository }}/$env.api_name:${{ github.run_number }}'
+          images: '${{ env.repo_url }}/${{ github.repository }}/${{ env.api_name }}:${{ github.run_number }}'
