@@ -15,7 +15,6 @@ on:
 jobs:     
 
   switch-staging-production:
-    needs: [check]
     runs-on: ubuntu-latest  
     name: Swap staging to production 
 
