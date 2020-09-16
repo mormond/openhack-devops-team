@@ -110,8 +110,6 @@ jobs:
     needs: [deploy]
     runs-on: ubuntu-latest   
     timeout-minutes: 3
-    env:
-      url: 'https://${{ env.staging_name }}.azurewebsites.net/api/healthcheck/poi'
 
     steps:
       - name: Wait on
