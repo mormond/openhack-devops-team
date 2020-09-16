@@ -1,19 +1,25 @@
 name: User Profile Workflow
 
+env:
+  wd_path: apis/userprofile
+  repo_url: docker.pkg.github.com
+  resource_group: openhackpf79scm7rg
+  webapp_name: openhackpf79scm7userprofile
+
 on:
   push:
     branches: [ master ]
-    paths:    [ apis/userprofile/** ]
+    paths: [ $env.wd_path/** ]
   pull_request:
     branches: [ master ]
-    paths:    [ apis/userprofile/** ]
+    paths: [ $env.wd_path/** ]
 
-jobs:
-  build:
+jobs:     
+  build:   
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apis/userprofile  
+        working-directory: $env.wd_path
         
     steps:
       - uses: actions/checkout@v2
@@ -57,22 +63,43 @@ jobs:
         run: 'echo Created issue number ${{ steps.create-issue.outputs.number }}'
 
   push_to_registry:
+    if: ${{ github.ref }} == 'refs/heads/master'
     needs: [build]
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apis/userprofile 
+        working-directory: $env.wd_path
+
            
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
 
       - name: Login to package registry
-        run: docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+        run: docker login ${{ env.repo_url }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
         
       - name: Build docker image
-        run: docker build -t docker.pkg.github.com/${{ github.repository }}/api-userprofile:${{ github.run_number }} .
+        run: docker build -t ${{ env.repo_url }}/${{ github.repository }}/$env.api_name:${{ github.run_number }} .
 
       - name: Push to registry
-        run: docker push docker.pkg.github.com/${{ github.repository }}/api-userprofile:${{ github.run_number }}
+        run: docker push ${{ env.repo_url }}/${{ github.repository }}/$env.api_name:${{ github.run_number }}
+
+  deploy:
+    needs: [push_to_registry]
+    name: Deploy to App Service
+    runs-on: ubuntu-latest    
+
+    steps:
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
+
+      - run: az webapp config container set --docker-registry-server-url https://${{ env.repo_url }} --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.PACKAGESPAT }} --resource-group ${{ env.resource_group }} --name ${{ env.webapp_name }}
+
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.webapp_name }}
+          publish-profile: ${{ secrets.USERPROFILEWEBAPPPUBLISHPROFILE }}
+          images: '${{ env.repo_url }}/${{ github.repository }}/$env.api_name:${{ github.run_number }}'
