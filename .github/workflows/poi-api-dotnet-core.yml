@@ -15,6 +15,7 @@ env:
   webapp_name: openhackpf79scm7poi
   staging_name: openhackpf79scm7poi-staging
   api_name: api-poi
+  healthcheck_path: azurewebsites.net/api/healthcheck/poi
 
 jobs:     
   build:   
@@ -116,12 +117,12 @@ jobs:
       - name: Wait on
         uses: iFaxity/wait-on-action@v1
         with:
-          resource: ${{ env.url }}
+          resource: https://${{ env.staging_name }}.${{ env.healthcheck_path }}
           interval: 5000
           
       - name: Healthcheck
         run: |
-          'RESPONSE=$(curl ${{ env.url }} --silent --header ''Accept: application/json')' 
+          'RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header ''Accept: application/json')' 
           'RESULT=$(echo $RESPONSE | python3 -c "import sys, json; print(json.load(sys.stdin)[''status''])")'
           'IF [[ $RESULT != 'Healthy' ]]; then echo "::error::Healthcheck failed"
 
