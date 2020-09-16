@@ -104,7 +104,8 @@ jobs:
 
       - uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.staging_name }}
+          app-name: ${{ env.webapp_name }}
+          slot-name: staging
           publish-profile: ${{ secrets.POIWEBAPPPUBLISHSTAGINGPROFILE }}
           images: '${{ env.repo_url }}/${{ github.repository }}/${{ env.api_name }}:${{ github.run_number }}'
 
