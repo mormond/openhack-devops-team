@@ -1,29 +1,33 @@
 name: Test Publish Workflow
 
 env:
+  wd_path: apis/poi
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
   webapp_name: openhackpf79scm7poi
+  staging_name: openhackpf79scm7poi-staging
+  api_name: api-poi
+  healthcheck_path: azurewebsites.net/api/healthcheck/poi
 
 on:
   workflow_dispatch:
 
 jobs:     
 
-  deploy:
-    name: Deploy to App Service
-    runs-on: ubuntu-latest    
+  check:
+    runs-on: ubuntu-latest  
+    name: Run healthcheck on staging 
+    timeout-minutes: 3
 
     steps:
-      - name: Azure Login
-        uses: Azure/login@v1
+      - name: Wait on
+        uses: iFaxity/wait-on-action@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }} 
-
-      - run: az webapp config container set --docker-registry-server-url https://${{ env.repo_url }} --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.PACKAGESPAT }} --resource-group ${{ env.resource_group }} --name ${{ env.webapp_name }}
-
-      - uses: azure/webapps-deploy@v2
-        with:
-          app-name: ${{ env.webapp_name }}
-          publish-profile: ${{ secrets.poiWebAppPublishProfile }}
-          images: '${{ env.repo_url }}/${{ github.repository }}/api-poi:49'
+          resource: https://${{ env.staging_name }}.${{ env.healthcheck_path }}
+          interval: 5000
+          
+      - name: Healthcheck
+        run: |
+          'RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header ''Accept: application/json')' 
+          'RESULT=$(echo $RESPONSE | python3 -c "import sys, json; print(json.load(sys.stdin)[''status''])")'
+          'IF [[ $RESULT != 'Healthy' ]]; then echo "::error::Healthcheck failed"
