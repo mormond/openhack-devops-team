@@ -9,18 +9,18 @@ on:
     paths: [ apis/userprofile/** ]
 
 env:
+  wd_path: apis/userprofile
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
   webapp_name: openhackpf79scm7userprofile
   api_name: api-userprofile
-
-defaults:
-  run:
-    working-directory: apis/userprofile
-    
+   
 jobs:     
   build:   
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.wd_path }}
         
     steps:
       - uses: actions/checkout@v2
@@ -68,7 +68,10 @@ jobs:
     needs: [build]
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
-           
+    defaults:
+      run:
+        working-directory: ${{ env.wd_path }}
+                   
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
