@@ -13,11 +13,14 @@ env:
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
   webapp_name: openhackpf79scm7userprofile
+  staging_name: openhackpf79scm7userprofile-staging
   api_name: api-userprofile
-   
+  healthcheck_path: azurewebsites.net/api/healthcheck/user
+  
 jobs:     
   build:   
     runs-on: ubuntu-latest
+    name: Build and test
     defaults:
       run:
         working-directory: ${{ env.wd_path }}
@@ -87,7 +90,7 @@ jobs:
 
   deploy:
     needs: [push_to_registry]
-    name: Deploy to App Service
+    name: Deploy to staging
     runs-on: ubuntu-latest    
 
     steps:
@@ -96,10 +99,90 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
-      - run: az webapp config container set --docker-registry-server-url https://${{ env.repo_url }} --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.PACKAGESPAT }} --resource-group ${{ env.resource_group }} --name ${{ env.webapp_name }}
+      - run: |
+          az webapp config container set \
+            --docker-registry-server-url https://${{ env.repo_url }} \
+            --docker-registry-server-user ${{ github.actor }} \
+            --docker-registry-server-password ${{ secrets.PACKAGESPAT }} \
+            --resource-group ${{ env.resource_group }} \
+            --slot staging \
+            --name ${{ env.webapp_name }}
 
       - uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.webapp_name }}
-          publish-profile: ${{ secrets.USERPROFILEWEBAPPPUBLISHPROFILE }}
+          slot-name: staging
+          publish-profile: ${{ secrets.USERPROFILEWEBAPPSTAGINGPUBLISHPROFILE }}
           images: '${{ env.repo_url }}/${{ github.repository }}/${{ env.api_name }}:${{ github.run_number }}'
+
+  check-staging:
+    needs: [deploy]
+    runs-on: ubuntu-latest  
+    name: Run healthcheck on staging 
+    timeout-minutes: 3
+
+    steps:
+      - name: Wait on
+        uses: iFaxity/wait-on-action@v1
+        with:
+          resource: https://${{ env.staging_name }}.${{ env.healthcheck_path }}
+          interval: 5000
+          
+      - name: Healthcheck
+        run: |
+          RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
+          #RESULT=$(echo $RESPONSE | python3 -c 'import sys, json; print(json.load(sys.stdin)[\'status\'])')
+          if [[ -z $RESPONSE ]]; then exit 1; fi
+
+  switch-staging-production:
+    needs: [check-staging]
+    runs-on: ubuntu-latest  
+    name: Swap staging to production 
+
+    steps:
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
+
+      - run: |
+          az webapp deployment slot swap \
+            --slot staging \
+            --target-slot production \
+            --resource-group ${{ env.resource_group }} \
+            --name ${{ env.webapp_name }} 
+
+  check-production:
+    needs: [switch-staging-production]
+    runs-on: ubuntu-latest  
+    name: Run healthcheck on production 
+
+    steps:        
+      - name: Healthcheck
+        run: |
+          RESPONSE=$(curl https://${{ env.webapp_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
+          #RESULT=$(echo $RESPONSE | python3 -c 'import sys, json; print(json.load(sys.stdin)[\'status\'])')
+          if [[ -z $RESPONSE ]]; then exit 1; fi
+
+  rollback:
+    needs: [switch-staging-production, check-production]
+    if: failure()
+    runs-on: ubuntu-latest  
+    name: Rollback production
+
+    steps:
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
+
+      - run: |
+          az webapp deployment slot swap \
+            --slot staging \
+            --target-slot production \
+            --resource-group ${{ env.resource_group }} \
+            --name ${{ env.webapp_name }} 
+
+
+
+
