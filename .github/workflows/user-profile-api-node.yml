@@ -46,7 +46,7 @@ jobs:
       - run: npm test
 
   log_issue:
-    if: ${{ !success() }}
+    if: failure()
     runs-on: ubuntu-latest
     
     steps:
@@ -64,7 +64,7 @@ jobs:
         run: 'echo Created issue number ${{ steps.create-issue.outputs.number }}'
 
   push_to_registry:
-    if: ${{ github.ref }} == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     needs: [build]
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
