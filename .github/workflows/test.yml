@@ -25,10 +25,10 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
       - run: |
-          az webapp deployment slot swap | 
-            --slot staging |
-            --target-slot production |
-            --resource-group ${{ env.resource_group }} |
+          az webapp deployment slot swap \
+            --slot staging \
+            --target-slot production \
+            --resource-group ${{ env.resource_group }} \
             --name ${{ env.webapp_name }} 
              
   check:
