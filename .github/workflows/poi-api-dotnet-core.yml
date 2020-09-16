@@ -99,7 +99,7 @@ jobs:
             --docker-registry-server-user ${{ github.actor }} \
             --docker-registry-server-password ${{ secrets.PACKAGESPAT }} \
             --resource-group ${{ env.resource_group }} \
-            --slot staging
+            --slot staging \
             --name ${{ env.webapp_name }}
 
       - uses: azure/webapps-deploy@v2
