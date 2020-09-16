@@ -28,6 +28,6 @@ jobs:
           
       - name: Healthcheck
         run: |
-          'RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header ''Accept: application/json'')' 
-          'RESULT=$(echo $RESPONSE | python3 -c "import sys, json; print(json.load(sys.stdin)[''status''])")'
-          'IF [[ $RESULT != 'Healthy' ]]; then echo "::error::Healthcheck failed"'
+          "RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')" 
+          "RESULT=$(echo $RESPONSE | python3 -c 'import sys, json; print(json.load(sys.stdin)[\'status\'])')"
+          "IF [[ $RESULT != 'Healthy' ]]; then echo '::error::Healthcheck failed'"
