@@ -9,10 +9,10 @@ env:
 on:
   push:
     branches: [ master ]
-    paths: [ $env.wd_path/** ]
+    paths: [ apis/userprofile/** ]
   pull_request:
     branches: [ master ]
-    paths: [ $env.wd_path/** ]
+    paths: [ apis/userprofile/** ]
 
 jobs:     
   build:   
