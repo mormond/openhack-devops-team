@@ -94,11 +94,11 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
       - run: |
-          az webapp config container set |
-            --docker-registry-server-url https://${{ env.repo_url }} |
-            --docker-registry-server-user ${{ github.actor }} |
-            --docker-registry-server-password ${{ secrets.PACKAGESPAT }} |
-            --resource-group ${{ env.resource_group }} |
+          az webapp config container set \
+            --docker-registry-server-url https://${{ env.repo_url }} \
+            --docker-registry-server-user ${{ github.actor }} \
+            --docker-registry-server-password ${{ secrets.PACKAGESPAT }} \
+            --resource-group ${{ env.resource_group }} \
             --name ${{ env.staging_name }}
 
       - uses: azure/webapps-deploy@v2
@@ -107,7 +107,7 @@ jobs:
           publish-profile: ${{ secrets.POIWEBAPPPUBLISHPROFILE }}
           images: '${{ env.repo_url }}/${{ github.repository }}/${{ env.api_name }}:${{ github.run_number }}'
 
-  check:
+  check-staging:
     needs: [deploy]
     runs-on: ubuntu-latest  
     name: Run healthcheck on staging 
@@ -124,10 +124,56 @@ jobs:
         run: |
           RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
           #RESULT=$(echo $RESPONSE | python3 -c 'import sys, json; print(json.load(sys.stdin)[\'status\'])')
-          if [[ $RESPONSE != 'Healthy' ]]; then exit 1; fi
+          if [[ -z $RESPONSE ]]; then exit 1; fi
 
+  switch-staging-production:
+    needs: [check-staging]
+    runs-on: ubuntu-latest  
+    name: Swap staging to production 
 
+    steps:
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
+      - run: |
+          az webapp deployment slot swap \
+            --slot staging \
+            --target-slot production \
+            --resource-group ${{ env.resource_group }} \
+            --name ${{ env.webapp_name }} 
+
+  check-production:
+    needs: [switch-staging-production]
+    runs-on: ubuntu-latest  
+    name: Run healthcheck on production 
+
+    steps:        
+      - name: Healthcheck
+        run: |
+          RESPONSE=$(curl https://${{ env.webapp_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
+          #RESULT=$(echo $RESPONSE | python3 -c 'import sys, json; print(json.load(sys.stdin)[\'status\'])')
+          if [[ -z $RESPONSE ]]; then exit 1; fi
+
+  rollback:
+    needs: [switch-staging-production, check-production]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest  
+    name: Rollback production
+
+    steps:
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
+
+      - run: |
+          az webapp deployment slot swap \
+            --slot staging \
+            --target-slot production \
+            --resource-group ${{ env.resource_group }} \
+            --name ${{ env.webapp_name }} 
 
 
 
