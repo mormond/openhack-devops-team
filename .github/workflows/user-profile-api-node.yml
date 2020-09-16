@@ -1,12 +1,5 @@
 name: User Profile Workflow
 
-env:
-  wd_path: apis/userprofile
-  repo_url: docker.pkg.github.com
-  resource_group: openhackpf79scm7rg
-  webapp_name: openhackpf79scm7userprofile
-  api_name: api-userprofile
-
 on:
   push:
     branches: [ master ]
@@ -15,12 +8,20 @@ on:
     branches: [ master ]
     paths: [ apis/userprofile/** ]
 
+env:
+  wd_path: apis/userprofile
+  repo_url: docker.pkg.github.com
+  resource_group: openhackpf79scm7rg
+  webapp_name: openhackpf79scm7userprofile
+  api_name: api-userprofile
+
+defaults:
+  run:
+    working-directory: ${{ env.wd_path }}
+    
 jobs:     
   build:   
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ env.wd_path }}
         
     steps:
       - uses: actions/checkout@v2
