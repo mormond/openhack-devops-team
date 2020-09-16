@@ -13,6 +13,7 @@ env:
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
   webapp_name: openhackpf79scm7poi
+  staging_name: openhackpf79scm7poi-staging
   api_name: api-poi
 
 jobs:     
@@ -90,10 +91,43 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
-      - run: az webapp config container set --docker-registry-server-url https://${{ env.repo_url }} --docker-registry-server-user ${{ github.actor }} --docker-registry-server-password ${{ secrets.PACKAGESPAT }} --resource-group ${{ env.resource_group }} --name ${{ env.webapp_name }}
+      - run: |
+          az webapp config container set 
+            --docker-registry-server-url https://${{ env.repo_url }} 
+            --docker-registry-server-user ${{ github.actor }} 
+            --docker-registry-server-password ${{ secrets.PACKAGESPAT }} 
+            --resource-group ${{ env.resource_group }} 
+            --name ${{ env.webapp_name }}
 
       - uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.webapp_name }}
           publish-profile: ${{ secrets.POIWEBAPPPUBLISHPROFILE }}
           images: '${{ env.repo_url }}/${{ github.repository }}/${{ env.api_name }}:${{ github.run_number }}'
+
+  check:
+    needs: [deploy]
+    runs-on: ubuntu-latest   
+    timeout-minutes: 3
+    env:
+      url: 'https://${{ env.staging_name }}.azurewebsites.net/api/healthcheck/poi'
+
+    steps:
+      - name: Wait on
+        uses: iFaxity/wait-on-action@v1
+        with:
+          resource: ${{ env.url }}
+          interval: 5000
+          
+      - name: Healthcheck
+        run: |
+          'RESPONSE=$(curl ${{ env.url }} --silent --header ''Accept: application/json')' 
+          'RESULT=$(echo $RESPONSE | python3 -c "import sys, json; print(json.load(sys.stdin)[''status''])")'
+          'IF [[ $RESULT != 'Healthy' ]]; then echo "::error::Healthcheck failed"
+
+
+
+
+
+
+
