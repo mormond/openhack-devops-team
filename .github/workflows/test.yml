@@ -14,7 +14,26 @@ on:
 
 jobs:     
 
+  switch-staging-production:
+    needs: [check]
+    runs-on: ubuntu-latest  
+    name: Swap staging to production 
+
+    steps:
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
+
+      - run: |
+          az webapp deployment slot swap |
+            --slot staging
+            --target-slot production
+            --resource-group ${{ env.resource_group }} |
+            --name ${{ env.webapp_name }}
+             
   check:
+    if: ${{ !always() }}
     runs-on: ubuntu-latest  
     name: Run healthcheck on staging 
     timeout-minutes: 3
