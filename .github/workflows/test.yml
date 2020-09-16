@@ -26,8 +26,8 @@ jobs:
 
       - run: |
           az webapp deployment slot swap |
-            --slot staging
-            --target-slot production
+            --slot staging |
+            --target-slot production |
             --resource-group ${{ env.resource_group }} |
             --name ${{ env.webapp_name }}
              
