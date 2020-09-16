@@ -5,23 +5,22 @@ env:
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
   webapp_name: openhackpf79scm7poi
+  api_name: api-poi
 
 on:
   push:
     branches: [ master ]
     paths: [ $env.wd_path/** ]
   pull_request:
-    branches:
-     - master
-    paths:
-     - apis/poi/**
+    branches: [ master ]
+    paths: [ $env.wd_path/** ]
 
 jobs:     
   build:   
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apis/poi 
+        working-directory: $env.wd_path
 
     steps:    
       - uses: actions/checkout@v2
@@ -65,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apis/poi/web   
+        working-directory: $env.wd_path/web   
            
     steps:
       - name: Check out the repo
@@ -75,10 +74,10 @@ jobs:
         run: docker login ${{ env.repo_url }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
         
       - name: Build docker image
-        run: docker build -t ${{ env.repo_url }}/${{ github.repository }}/api-poi:${{ github.run_number }} .
+        run: docker build -t ${{ env.repo_url }}/${{ github.repository }}/$env.api_name:${{ github.run_number }} .
 
       - name: Push to registry
-        run: docker push ${{ env.repo_url }}/${{ github.repository }}/api-poi:${{ github.run_number }}
+        run: docker push ${{ env.repo_url }}/${{ github.repository }}/$env.api_name:${{ github.run_number }}
 
   deploy:
     needs: [push_to_registry]
@@ -96,5 +95,5 @@ jobs:
       - uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.webapp_name }}
-          publish-profile: ${{ secrets.poiWebAppPublishProfile }}
-          images: '${{ env.repo_url }}/${{ github.repository }}/api-poi:${{ github.run_number }}'
+          publish-profile: ${{ secrets.POIWEBAPPPUBLISHPROFILE }}
+          images: '${{ env.repo_url }}/${{ github.repository }}/$env.api_name:${{ github.run_number }}'
