@@ -43,7 +43,7 @@ jobs:
         run: dotnet test --no-restore --verbosity normal
         
   log_issue:
-    if: ${{ !success() }}
+    if: failure()
     runs-on: ubuntu-latest
     
     steps:
@@ -61,7 +61,7 @@ jobs:
         run: 'echo Created issue number ${{ steps.create-issue.outputs.number }}'
 
   push_to_registry:
-    if: ${{ github.ref }} == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     needs: [build]
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
@@ -158,7 +158,7 @@ jobs:
 
   rollback:
     needs: [switch-staging-production, check-production]
-    if: ${{ failure() }}
+    if: failure()
     runs-on: ubuntu-latest  
     name: Rollback production
 
