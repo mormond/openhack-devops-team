@@ -164,12 +164,13 @@ jobs:
         run: |
           RESPONSE=$(curl https://${{ env.webapp_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
           RESULT=$(echo $RESPONSE | jq '.status')
-          if [[ ! $RESULT = \"Healthy Production* ]]; then exit 1; fi 
+          if [[ ! $RESULT = \"Healthy\ Production* ]]; then exit 1; fi 
 
   rollback:
     needs: [switch-staging-production, check-production]
+    if: failure()
     runs-on: ubuntu-latest  
-    name: Rollback on fail, stop staging on success
+    name: Rollback on failure
 
     steps:
       - name: Azure Login
@@ -178,7 +179,6 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
       - name: Failure - swap staging back to production
-        if: failure()
         run: |
           az webapp deployment slot swap \
             --slot staging \
@@ -186,13 +186,21 @@ jobs:
             --resource-group ${{ env.resource_group }} \
             --name ${{ env.webapp_name }} 
 
+  stopstaging:
+    needs: [switch-staging-production, check-production]
+    runs-on: ubuntu-latest  
+    name: Stop staging on success
+
+    steps:
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
+
       - name: Success - stop staging slot
-        if: success()
         run: |
           az webapp stop \
             --slot staging \
             --resource-group ${{ env.resource_group }} \
             --name ${{ env.webapp_name }} 
-
-
 
