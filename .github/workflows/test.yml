@@ -13,8 +13,14 @@ on:
   workflow_dispatch:
 
 jobs:     
+  bashtest:
+    runs-on: ubuntu-latest  
+  steps:
+    - run:
+        sudo apt install jq
 
   switch-staging-production:
+    if: !always()
     runs-on: ubuntu-latest  
     name: Swap staging to production 
 
@@ -32,7 +38,7 @@ jobs:
             --name ${{ env.webapp_name }} 
              
   check:
-    if: ${{ !always() }}
+    if: !always()
     runs-on: ubuntu-latest  
     name: Run healthcheck on staging 
     timeout-minutes: 3
