@@ -19,7 +19,9 @@ jobs:
     steps:
       - run: |
           RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
-          echo $RESPONSE | jq '.status'
+          RESULT=$($RESPONSE | jq '.status')
+          echo $RESULT
+          if [[ -z $RESULT ]]; then exit 1; fi
 
   switch-staging-production:
     if: ${{ !always() }}
