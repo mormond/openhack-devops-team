@@ -16,8 +16,16 @@ jobs:
 
   bashtest:
     runs-on: ubuntu-latest  
+    
     steps:
+      - name: Wait on
+        uses: iFaxity/wait-on-action@v1
+        with:
+          resource: https://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }}
+          interval: 5000
+
       - run: |
+          echo "Wait on completed"
           #RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
           #RESULT=$(echo $RESPONSE | jq '.status')
           #echo $RESULT
