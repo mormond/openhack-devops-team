@@ -124,7 +124,7 @@ jobs:
       - name: Wait on
         uses: iFaxity/wait-on-action@v1
         with:
-          resource: https://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }}
+          resource: https-get://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }}
           interval: 5000
           
       - name: Healthcheck
