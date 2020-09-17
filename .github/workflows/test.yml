@@ -12,11 +12,13 @@ env:
 on:
   workflow_dispatch:
 
-jobs:     
+jobs:
+
   bashtest:
     runs-on: ubuntu-latest  
   steps:
-    - run: echo 'Hello'
+    - run: |
+        RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
 
   switch-staging-production:
     if: !always()
