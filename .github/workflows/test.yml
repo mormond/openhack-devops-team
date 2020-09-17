@@ -18,9 +18,8 @@ jobs:
     runs-on: ubuntu-latest  
     steps:
       - run: |
-          echo 'Hello'
-          sudo apt install jq
           RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
+          echo $RESPONSE | jq '.status'
 
   switch-staging-production:
     if: ${{ !always() }}
