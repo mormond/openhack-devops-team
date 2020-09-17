@@ -13,7 +13,6 @@ env:
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
   webapp_name: openhackpf79scm7poi
-  staging_name: openhackpf79scm7poi-staging
   api_name: api-poi
   healthcheck_path: azurewebsites.net/api/healthcheck/poi
 
@@ -119,14 +118,21 @@ jobs:
       - name: Wait on
         uses: iFaxity/wait-on-action@v1
         with:
-          resource: https://${{ env.staging_name }}.${{ env.healthcheck_path }}
+          resource: https://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }}
           interval: 5000
           
       - name: Healthcheck
         run: |
-          RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
-          #RESULT=$(echo $RESPONSE | python3 -c 'import sys, json; print(json.load(sys.stdin)[\'status\'])')
-          if [[ -z $RESPONSE ]]; then exit 1; fi
+          SUCCESS='false'
+          for (( j=0; j<10; j++ ))
+          do
+            sleep $((j*10))
+            RESPONSE=$(curl https://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
+            RESULT=$(echo $RESPONSE | jq '.status')
+            echo $RESULT
+            if [[ $RESULT = \"Healthy* ]]; then SUCCESS='true'; break; fi
+          done
+          if [ $SUCCESS == "false" ]; then exit 1; fi
 
   switch-staging-production:
     needs: [check-staging]
@@ -154,15 +160,22 @@ jobs:
     steps:        
       - name: Healthcheck
         run: |
-          RESPONSE=$(curl https://${{ env.webapp_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
-          #RESULT=$(echo $RESPONSE | python3 -c 'import sys, json; print(json.load(sys.stdin)[\'status\'])')
-          if [[ -z $RESPONSE ]]; then exit 1; fi
+          SUCCESS='false'
+          for (( j=0; j<10; j++ ))
+          do
+            sleep $((j*10))
+            RESPONSE=$(curl https://${{ env.webapp_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
+            RESULT=$(echo $RESPONSE | jq '.status')
+            echo $RESULT
+            if [[ $RESULT = \"Healthy\ Production* ]]; then SUCCESS='true'; break; fi
+          done
+          if [ $SUCCESS == "false" ]; then exit 1; fi
 
   rollback:
     needs: [switch-staging-production, check-production]
     if: failure()
     runs-on: ubuntu-latest  
-    name: Rollback production
+    name: Rollback on failure
 
     steps:
       - name: Azure Login
@@ -170,13 +183,28 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
-      - run: |
+      - name: Failure - swap staging back to production
+        run: |
           az webapp deployment slot swap \
             --slot staging \
             --target-slot production \
             --resource-group ${{ env.resource_group }} \
             --name ${{ env.webapp_name }} 
 
+  stopstaging:
+    needs: [switch-staging-production, check-production]
+    runs-on: ubuntu-latest  
+    name: Stop staging on success
 
+    steps:
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
-
+      - name: Success - stop staging slot
+        run: |
+          az webapp stop \
+            --slot staging \
+            --resource-group ${{ env.resource_group }} \
+            --name ${{ env.webapp_name }} 
