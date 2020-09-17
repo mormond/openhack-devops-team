@@ -125,7 +125,6 @@ jobs:
         uses: iFaxity/wait-on-action@v1
         with:
           resource: https://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }}
-          #delay: 30000
           interval: 5000
           
       - name: Healthcheck
@@ -133,7 +132,7 @@ jobs:
           SUCCESS='false'
           for (( j=0; j<10; j++ ))
           do
-            sleep $((J*10))
+            sleep $((j*10))
             RESPONSE=$(curl https://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
             RESULT=$(echo $RESPONSE | jq '.status')
             echo $RESULT
@@ -170,7 +169,7 @@ jobs:
           SUCCESS='false'
           for (( j=0; j<10; j++ ))
           do
-            sleep $((J*10))
+            sleep $((j*10))
             RESPONSE=$(curl https://${{ env.webapp_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
             RESULT=$(echo $RESPONSE | jq '.status')
             echo $RESULT
@@ -215,4 +214,3 @@ jobs:
             --slot staging \
             --resource-group ${{ env.resource_group }} \
             --name ${{ env.webapp_name }} 
-
