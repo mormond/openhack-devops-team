@@ -21,7 +21,7 @@ jobs:
           RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
           RESULT=$(echo $RESPONSE | jq '.status')
           echo $RESULT
-          if [[ -z $RESULT ]]; then exit 1; fi
+          if [[ ! $RESULT = \"Healthy* ]]; then exit 1; fi
 
   switch-staging-production:
     if: ${{ !always() }}
