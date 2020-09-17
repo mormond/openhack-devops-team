@@ -16,13 +16,15 @@ jobs:
 
   bashtest:
     runs-on: ubuntu-latest  
-  steps:
-    - run: |
-        RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
+    steps:
+      - run: |
+          echo 'Hello'
+          sudo apt install jq
+          RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
 
   switch-staging-production:
     if: ${{ !always() }}
-    runs-on: ubuntu-latest  
+    runs-on: ubuntu-latest  `
     name: Swap staging to production 
 
     steps:
