@@ -162,7 +162,7 @@ jobs:
         run: |
           RESPONSE=$(curl https://${{ env.webapp_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
           RESULT=$(echo $RESPONSE | jq '.status')
-          if [[ ! $RESULT = \"Healthy* ]]; then exit 1; fi 
+          if [[ ! $RESULT = \"Healthy Production* ]]; then exit 1; fi 
 
   rollback:
     needs: [switch-staging-production, check-production]
