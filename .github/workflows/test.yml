@@ -19,7 +19,7 @@ jobs:
     steps:
       - run: |
           RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
-          RESULT=$($RESPONSE | jq '.status')
+          RESULT=$(echo $RESPONSE | jq '.status')
           echo $RESULT
           if [[ -z $RESULT ]]; then exit 1; fi
 
