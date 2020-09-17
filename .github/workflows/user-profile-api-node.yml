@@ -98,6 +98,12 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
+        run: |
+          az webapp start \
+            --slot staging \
+            --resource-group ${{ env.resource_group }} \
+            --name ${{ env.webapp_name }} 
+
       - run: |
           az webapp config container set \
             --docker-registry-server-url https://${{ env.repo_url }} \
@@ -118,7 +124,7 @@ jobs:
     needs: [deploy]
     runs-on: ubuntu-latest  
     name: Run healthcheck on staging 
-    timeout-minutes: 3
+    timeout-minutes: 5
 
     steps:
       - name: Wait on
@@ -178,7 +184,7 @@ jobs:
           if [ $SUCCESS == "false" ]; then exit 1; fi
 
   rollback:
-    needs: [switch-staging-production, check-production]
+    needs: [check-production]
     if: failure()
     runs-on: ubuntu-latest  
     name: Rollback on failure
@@ -198,7 +204,8 @@ jobs:
             --name ${{ env.webapp_name }} 
 
   stopstaging:
-    needs: [switch-staging-production, check-production]
+    needs: [check-production, rollback]
+    if: always()
     runs-on: ubuntu-latest  
     name: Stop staging on success
 
