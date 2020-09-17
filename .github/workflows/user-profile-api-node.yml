@@ -131,10 +131,16 @@ jobs:
           
       - name: Healthcheck
         run: |
-          RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
-          RESULT=$(echo $RESPONSE | jq '.status')
-          echo $RESULT
-          if [[ ! $RESULT = \"Healthy* ]]; then exit 1; fi          
+          SUCCESS='false'
+          for (( j=0; j<10; j++ ))
+          do
+            sleep $((J*10))
+            RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
+            RESULT=$(echo $RESPONSE | jq '.status')
+            echo $RESULT
+            if [[ $RESULT = \"Healthy* ]]; then SUCCESS='true'; break; fi
+          done
+          if [ $SUCCESS == "false" ]; then exit 1; fi
 
   switch-staging-production:
     needs: [check-staging]
@@ -162,9 +168,16 @@ jobs:
     steps:        
       - name: Healthcheck
         run: |
-          RESPONSE=$(curl https://${{ env.webapp_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
-          RESULT=$(echo $RESPONSE | jq '.status')
-          if [[ ! $RESULT = \"Healthy\ Production* ]]; then exit 1; fi 
+          SUCCESS='false'
+          for (( j=0; j<10; j++ ))
+          do
+            sleep $((J*10))
+            RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
+            RESULT=$(echo $RESPONSE | jq '.status')
+            echo $RESULT
+            if [[ $RESULT = \"Healthy\ Production* ]]; then SUCCESS='true'; break; fi
+          done
+          if [ $SUCCESS == "false" ]; then exit 1; fi
 
   rollback:
     needs: [switch-staging-production, check-production]
