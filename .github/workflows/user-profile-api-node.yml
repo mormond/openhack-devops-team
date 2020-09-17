@@ -13,7 +13,6 @@ env:
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
   webapp_name: openhackpf79scm7userprofile
-  staging_name: openhackpf79scm7userprofile-staging
   api_name: api-userprofile
   healthcheck_path: azurewebsites.net/api/healthcheck/user
   
@@ -125,7 +124,7 @@ jobs:
       - name: Wait on
         uses: iFaxity/wait-on-action@v1
         with:
-          resource: https://${{ env.staging_name }}.${{ env.healthcheck_path }}
+          resource: https://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }}
           #delay: 30000
           interval: 5000
           
@@ -135,7 +134,7 @@ jobs:
           for (( j=0; j<10; j++ ))
           do
             sleep $((J*10))
-            RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
+            RESPONSE=$(curl https://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
             RESULT=$(echo $RESPONSE | jq '.status')
             echo $RESULT
             if [[ $RESULT = \"Healthy* ]]; then SUCCESS='true'; break; fi
@@ -172,7 +171,7 @@ jobs:
           for (( j=0; j<10; j++ ))
           do
             sleep $((J*10))
-            RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
+            RESPONSE=$(curl https://${{ env.webapp_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
             RESULT=$(echo $RESPONSE | jq '.status')
             echo $RESULT
             if [[ $RESULT = \"Healthy\ Production* ]]; then SUCCESS='true'; break; fi
