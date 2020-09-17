@@ -1,13 +1,19 @@
 name: Test Publish Workflow
 
 env:
-  wd_path: apis/userprofile
+  #wd_path: apis/userprofile
+  #repo_url: docker.pkg.github.com
+  #resource_group: openhackpf79scm7rg
+  #webapp_name: openhackpf79scm7userprofile
+  #staging_name: openhackpf79scm7userprofile-staging
+  #api_name: api-userprofile
+  #healthcheck_path: azurewebsites.net/api/healthcheck/user
+  wd_path: apis/poi
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
-  webapp_name: openhackpf79scm7userprofile
-  staging_name: openhackpf79scm7userprofile-staging
-  api_name: api-userprofile
-  healthcheck_path: azurewebsites.net/api/healthcheck/user
+  webapp_name: openhackpf79scm7poi
+  api_name: api-poi
+  healthcheck_path: azurewebsites.net/api/healthcheck/poi
 
 on:
   workflow_dispatch:
