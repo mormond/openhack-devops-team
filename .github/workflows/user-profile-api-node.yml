@@ -126,12 +126,14 @@ jobs:
         uses: iFaxity/wait-on-action@v1
         with:
           resource: https://${{ env.staging_name }}.${{ env.healthcheck_path }}
+          #delay: 30000
           interval: 5000
           
       - name: Healthcheck
         run: |
           RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
           RESULT=$(echo $RESPONSE | jq '.status')
+          echo $RESULT
           if [[ ! $RESULT = \"Healthy* ]]; then exit 1; fi          
 
   switch-staging-production:
