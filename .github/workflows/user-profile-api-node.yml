@@ -166,9 +166,8 @@ jobs:
 
   rollback:
     needs: [switch-staging-production, check-production]
-    if: failure()
     runs-on: ubuntu-latest  
-    name: Rollback production
+    name: Rollback on fail, stop staging on success
 
     steps:
       - name: Azure Login
@@ -176,13 +175,22 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
-      - run: |
+      - name: Failure - swap staging back to production
+        if: failure()
+        run: |
           az webapp deployment slot swap \
             --slot staging \
             --target-slot production \
             --resource-group ${{ env.resource_group }} \
             --name ${{ env.webapp_name }} 
 
+      - name: Success - stop staging slot
+        if: success()
+        run: |
+          az webapp stop \
+            --slot staging \
+            --resource-group ${{ env.resource_group }} \
+            --name ${{ env.webapp_name }} 
 
 
 
