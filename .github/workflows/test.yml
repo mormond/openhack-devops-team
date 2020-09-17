@@ -16,7 +16,7 @@ jobs:
   bashtest:
     runs-on: ubuntu-latest  
   steps:
-    - run: sudo apt install jq
+    - run: apt install jq
 
   switch-staging-production:
     if: !always()
