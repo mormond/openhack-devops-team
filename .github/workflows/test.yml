@@ -21,7 +21,7 @@ jobs:
         RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
 
   switch-staging-production:
-    if: !always()
+    if: ${{ !always() }}
     runs-on: ubuntu-latest  
     name: Swap staging to production 
 
@@ -39,7 +39,7 @@ jobs:
             --name ${{ env.webapp_name }} 
              
   check:
-    if: !always()
+    if: ${{ !always() }}
     runs-on: ubuntu-latest  
     name: Run healthcheck on staging 
     timeout-minutes: 3
