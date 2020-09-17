@@ -1,13 +1,13 @@
 name: Test Publish Workflow
 
 env:
-  wd_path: apis/poi
+  wd_path: apis/userprofile
   repo_url: docker.pkg.github.com
   resource_group: openhackpf79scm7rg
-  webapp_name: openhackpf79scm7poi
-  staging_name: openhackpf79scm7poi-staging
-  api_name: api-poi
-  healthcheck_path: azurewebsites.net/api/healthcheck/poi
+  webapp_name: openhackpf79scm7userprofile
+  staging_name: openhackpf79scm7userprofile-staging
+  api_name: api-userprofile
+  healthcheck_path: azurewebsites.net/api/healthcheck/user
 
 on:
   workflow_dispatch:
@@ -18,10 +18,16 @@ jobs:
     runs-on: ubuntu-latest  
     steps:
       - run: |
-          RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
+          #RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json')
+          #RESULT=$(echo $RESPONSE | jq '.status')
+          #echo $RESULT
+          #if [[ ! $RESULT = \"Healthy* ]]; then exit 1; fi
+          
+      - run: |
+          RESPONSE=$(curl https://${{ env.staging_name }}.${{ env.healthcheck_path }} --silent --header 'Accept: application/json') 
           RESULT=$(echo $RESPONSE | jq '.status')
-          echo $RESULT
-          if [[ ! $RESULT = \"Healthy* ]]; then exit 1; fi
+          echo $RESULT          
+          if [[ ! $RESULT = \"Healthy* ]]; then echo "Failed Test"; fi 
 
   switch-staging-production:
     if: ${{ !always() }}
