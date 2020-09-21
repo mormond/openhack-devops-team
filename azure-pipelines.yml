@@ -9,13 +9,13 @@ trigger:
       - master
   paths:
     include:
-      - apis/userprofile/*
+      - apis/poi/*
 
 pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: 'apis/userprofile/**/*.sln'
+  solution: 'apis/poi/**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
