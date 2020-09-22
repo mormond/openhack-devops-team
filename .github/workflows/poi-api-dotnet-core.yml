@@ -2,11 +2,11 @@ name: POI API Workflow
 
 on:
   push:
-    branches: [ master ]
-    paths: [ apis/poi/** ]
+    branches: [ master ]    
+    #paths: [ apis/poi/** ]
   pull_request:
     branches: [ master ]
-    paths: [ apis/poi/** ]
+    #paths: [ apis/poi/** ]
 
 env:
   wd_path: apis/poi
