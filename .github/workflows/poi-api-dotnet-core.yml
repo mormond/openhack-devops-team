@@ -1,13 +1,18 @@
 name: POI API Workflow
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ master ]
+    paths: [ apis/poi/** ]
+  pull_request:
+    branches: [ master ]
+    paths: [ apis/poi/** ]
 
 env:
   wd_path: apis/poi
   repo_url: docker.pkg.github.com
-  resource_group: AppServiceTest
-  webapp_name: meoopenhackpf79scm7poi
+  resource_group: openhackpf79scm7rg
+  webapp_name: openhackpf79scm7poi
   api_name: api-poi
   healthcheck_path: azurewebsites.net/api/healthcheck/poi
 
@@ -119,7 +124,7 @@ jobs:
       - name: Wait on
         uses: iFaxity/wait-on-action@v1
         with:
-          resource: https-get://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }}
+          resource: https://${{ env.webapp_name }}-staging.${{ env.healthcheck_path }}
           interval: 5000
           
       - name: Healthcheck
